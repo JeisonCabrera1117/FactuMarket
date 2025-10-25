@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+# Función para esperar a que Oracle esté listo
+wait_for_oracle() {
+  echo "Esperando a que Oracle esté listo..."
+  while ! timeout 1 bash -c "echo > /dev/tcp/$ORACLE_HOST/$ORACLE_PORT" 2>/dev/null; do
+    echo "Oracle no está listo aún, esperando..."
+    sleep 2
+  done
+  echo "Oracle está listo!"
+}
+
+# Si se especifica un host de Oracle, esperar a que esté listo
+if [ -n "$ORACLE_HOST" ]; then
+  wait_for_oracle
+fi
+
+# If running the rails server then create or migrate existing database
+if [ "${1}" == "rails" ] && [ "${2}" == "server" ]; then
+  echo "Preparando base de datos..."
+  bundle exec rails db:prepare
+fi
+
+exec "${@}"

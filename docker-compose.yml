@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de datos Oracle Express
   oracle-db:
@@ -33,9 +31,9 @@ services:
       - RAILS_ENV=development
       - ORACLE_HOST=oracle-db
       - ORACLE_PORT=1521
-      - ORACLE_SERVICE_NAME=XE
-      - ORACLE_USERNAME=system
-      - ORACLE_PASSWORD=Oracle123
+      - ORACLE_SERVICE_NAME=XEPDB1
+      - ORACLE_USERNAME=clientes_service
+      - ORACLE_PASSWORD=clientes123
       - RAILS_MAX_THREADS=5
     ports:
       - "3000:3000"

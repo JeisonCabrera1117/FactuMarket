@@ -114,7 +114,7 @@ FactuMarket/
 
 ### Arquitectura Clean Architecture por Capas
 
-#### 🏗️ **Capa de Dominio (Domain Layer)**
+#### **Capa de Dominio (Domain Layer)**
 ```
 lib/domain/
 ├── entities/                    # Entidades de negocio
@@ -127,7 +127,7 @@ lib/domain/
     └── audit_log_repository.rb
 ```
 
-#### 🔧 **Capa de Aplicación (Application Layer)**
+#### **Capa de Aplicación (Application Layer)**
 ```
 app/
 ├── services/                   # Servicios de aplicación
@@ -143,7 +143,7 @@ app/
     └── audit_log.rb
 ```
 
-#### 🌐 **Capa de Infraestructura (Infrastructure Layer)**
+#### **Capa de Infraestructura (Infrastructure Layer)**
 ```
 app/controllers/                # Controladores REST
 ├── clientes_controller.rb     # API de clientes
@@ -158,29 +158,29 @@ config/                        # Configuración
 
 ### Patrones de Diseño Implementados
 
-#### 🔄 **Repository Pattern**
+#### **Repository Pattern**
 - **Interfaz:** `lib/domain/repositories/`
 - **Implementación:** `app/repositories/`
 - **Beneficio:** Desacoplamiento entre lógica de negocio y persistencia
 
-#### 🏭 **Service Layer Pattern**
+#### **Service Layer Pattern**
 - **Servicios:** `app/services/`
 - **Responsabilidad:** Lógica de aplicación y orquestación
 - **Ejemplo:** `AuditLogger` para logging automático
 
-#### 🎯 **MVC Pattern**
+#### **MVC Pattern**
 - **Modelos:** `app/models/` (persistencia)
 - **Vistas:** Respuestas JSON
 - **Controladores:** `app/controllers/` (API REST)
 
-#### 📊 **Audit Pattern**
+#### **Audit Pattern**
 - **Logging automático** en todas las operaciones CRUD
 - **Trazabilidad completa** de cambios
 - **Filtros avanzados** para consultas
 
 ### Flujo de Datos y Comunicación
 
-#### 🔄 **Flujo de una Operación CRUD**
+#### **Flujo de una Operación CRUD**
 ```
 1. Cliente → API Gateway (Nginx) → Microservicio
 2. Controlador → Servicio de Aplicación → Repositorio
@@ -189,7 +189,7 @@ config/                        # Configuración
 5. Respuesta JSON → Cliente
 ```
 
-#### 🏗️ **Ejemplo de Implementación Clean Architecture**
+#### **Ejemplo de Implementación Clean Architecture**
 
 **Entidad de Dominio (`lib/domain/entities/cliente.rb`):**
 ```ruby
@@ -253,23 +253,23 @@ end
 
 ### Tecnologías y Herramientas
 
-#### 🗄️ **Bases de Datos**
+#### **Bases de Datos**
 - **Oracle 21c Express**: Persistencia transaccional para clientes y facturas
 - **MongoDB 7.0**: Almacenamiento de logs de auditoría
 - **SQLite3**: Configuración dummy para compatibilidad con Rails
 
-#### 🐳 **Containerización**
+#### **Containerización**
 - **Docker**: Containerización de microservicios
 - **Docker Compose**: Orquestación de servicios
 - **Nginx**: API Gateway y proxy reverso
 
-#### 🚀 **Frameworks y Librerías**
+#### **Frameworks y Librerías**
 - **Ruby on Rails 7.1**: Framework web para microservicios
 - **Mongoid**: ODM para MongoDB
 - **Oracle Enhanced Adapter**: Conector para Oracle
 - **Puma**: Servidor web de aplicación
 
-#### 🔧 **Herramientas de Desarrollo**
+#### **Herramientas de Desarrollo**
 - **Health Checks**: Monitoreo de servicios
 - **Logging Automático**: Trazabilidad completa
 - **CORS**: Configuración para desarrollo frontend
@@ -308,26 +308,26 @@ docker-compose logs -f auditoria-service
 
 **Base URL:** `http://localhost:3000`
 
-### 🏥 Health Checks
+### Health Checks
 
 - `GET /health` - Health check general del gateway
 - `GET /clientes/health` - Health check del servicio de clientes
 - `GET /facturas/health` - Health check del servicio de facturas
 - `GET /audit_logs/health` - Health check del servicio de auditoría
 
-### 👥 Servicio de Clientes
+### Servicio de Clientes
 
 - `GET /clientes` - Listar todos los clientes
 - `GET /clientes/:id` - Obtener cliente por ID
 - `POST /clientes` - Crear nuevo cliente
 
-### 🧾 Servicio de Facturas
+### Servicio de Facturas
 
 - `GET /facturas` - Listar facturas (con filtros opcionales)
 - `GET /facturas/:id` - Obtener factura por ID
 - `POST /facturas` - Crear nueva factura
 
-### 📊 Servicio de Auditoría
+### Servicio de Auditoría
 
 - `GET /audit_logs` - Listar logs de auditoría (con filtros)
 - `GET /audit_logs/:id` - Obtener log específico

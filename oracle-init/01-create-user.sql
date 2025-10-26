@@ -44,12 +44,12 @@ INSERT INTO clientes_service.categorias_cliente (nombre, descripcion) VALUES ('R
 INSERT INTO clientes_service.categorias_cliente (nombre, descripcion) VALUES ('Nuevo', 'Clientes nuevos');
 
 -- Insertar algunos clientes de ejemplo
-INSERT INTO clientes_service.clientes (nombre, email, telefono, direccion) VALUES 
-('Juan Pérez', 'juan.perez@email.com', '555-0101', 'Calle Principal 123');
-INSERT INTO clientes_service.clientes (nombre, email, telefono, direccion) VALUES 
-('María García', 'maria.garcia@email.com', '555-0102', 'Avenida Central 456');
-INSERT INTO clientes_service.clientes (nombre, email, telefono, direccion) VALUES 
-('Carlos López', 'carlos.lopez@email.com', '555-0103', 'Plaza Mayor 789');
+INSERT INTO clientes_service.clientes (nombre, identificacion, email, direccion) VALUES 
+('Juan Pérez', '12345678', 'juan.perez@email.com', 'Calle Principal 123');
+INSERT INTO clientes_service.clientes (nombre, identificacion, email, direccion) VALUES 
+('María García', '87654321', 'maria.garcia@email.com', 'Avenida Central 456');
+INSERT INTO clientes_service.clientes (nombre, identificacion, email, direccion) VALUES 
+('Carlos López', '11223344', 'carlos.lopez@email.com', 'Plaza Mayor 789');
 
 COMMIT;
 

@@ -2,8 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ClienteService do
   let(:cliente_repository) { double('ClienteRepository') }
-  let(:auditoria_service) { double('AuditoriaService') }
-  let(:service) { ClienteService.new(cliente_repository, auditoria_service) }
+  let(:service) { ClienteService.new(cliente_repository) }
 
   describe '#crear_cliente' do
     context 'con datos válidos' do
@@ -24,7 +23,6 @@ RSpec.describe ClienteService do
         allow(cliente_entity).to receive(:valid?).and_return(true)
         allow(cliente_repository).to receive(:find_by_identificacion).and_return(nil)
         allow(cliente_repository).to receive(:save).and_return(saved_cliente)
-        allow(auditoria_service).to receive(:registrar_evento).and_return({ success: true })
       end
 
       it 'crea un cliente exitosamente' do
@@ -34,15 +32,6 @@ RSpec.describe ClienteService do
         expect(result[:data]).to eq(saved_cliente)
       end
 
-      it 'registra el evento de auditoría' do
-        service.crear_cliente(params)
-
-        expect(auditoria_service).to have_received(:registrar_evento).with(
-          tipo: 'cliente_creado',
-          entidad_id: 1,
-          datos: {}
-        )
-      end
     end
 
     context 'con datos inválidos' do
@@ -95,7 +84,6 @@ RSpec.describe ClienteService do
     context 'cuando el cliente existe' do
       before do
         allow(cliente_repository).to receive(:find_by_id).with(cliente_id).and_return(cliente_entity)
-        allow(auditoria_service).to receive(:registrar_evento).and_return({ success: true })
       end
 
       it 'retorna el cliente' do
@@ -125,7 +113,6 @@ RSpec.describe ClienteService do
 
     before do
       allow(cliente_repository).to receive(:all).and_return(clientes)
-      allow(auditoria_service).to receive(:registrar_evento).and_return({ success: true })
     end
 
     it 'retorna la lista de clientes' do

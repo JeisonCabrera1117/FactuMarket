@@ -1,0 +1,36 @@
+# Oracle/OCI 11g or higher recommended
+#
+# Requires Ruby/OCI8:
+#  https://github.com/kubo/ruby-oci8
+#
+# Specify your database using any valid connection syntax, such as a
+# tnsnames.ora service name, or an SQL connect string of the form:
+#
+#   //host:[port][/service name]
+#
+# By default prefetch_rows (OCI_ATTR_PREFETCH_ROWS) is set to 100. And
+# until true bind variables are supported, cursor_sharing is set by default
+# to 'similar'. Both can be changed in the configuration below; the defaults
+# are equivalent to specifying:
+#
+#  prefetch_rows: 100
+#  cursor_sharing: similar
+#
+default: &default
+  adapter: oracle_enhanced
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+  username: <%= ENV.fetch("ORACLE_USERNAME") { "facturas_service" } %>
+  password: <%= ENV.fetch("ORACLE_PASSWORD") { "facturas123" } %>
+  host: <%= ENV.fetch("ORACLE_HOST") { "oracle-db" } %>
+  port: <%= ENV.fetch("ORACLE_PORT") { 1521 } %>
+  database: <%= ENV.fetch("ORACLE_DATABASE") { "XEPDB1" } %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

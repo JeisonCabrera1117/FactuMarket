@@ -1,4 +1,25 @@
 services:
+  # API Gateway con Nginx
+  api-gateway:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: factumarket-api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - clientes-service
+      - facturas-service
+    networks:
+      - factumarket-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   # Base de datos Oracle Express
   oracle-db:
     image: container-registry.oracle.com/database/express:latest
@@ -35,8 +56,12 @@ services:
       - ORACLE_USERNAME=clientes_service
       - ORACLE_PASSWORD=clientes123
       - RAILS_MAX_THREADS=5
-    ports:
-      - "3000:3000"
+      - ALLOWED_ORIGINS=*
+      - HTTP_READ_TIMEOUT=10
+      - HTTP_OPEN_TIMEOUT=5
+    # Puerto interno solamente (accesible solo desde la red Docker)
+    expose:
+      - "3000"
     volumes:
       - ./backend/clientes-service:/app
       - clientes_logs:/app/log
@@ -46,13 +71,59 @@ services:
     networks:
       - factumarket-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio de facturas
+  facturas-service:
+    build:
+      context: ./backend/facturas-service
+      dockerfile: Dockerfile
+    container_name: factumarket-facturas-service
+    environment:
+      - RAILS_ENV=development
+      - ORACLE_HOST=oracle-db
+      - ORACLE_PORT=1521
+      - ORACLE_SERVICE_NAME=XEPDB1
+      - ORACLE_USERNAME=facturas_service
+      - ORACLE_PASSWORD=facturas123
+      - RAILS_MAX_THREADS=5
+      - CLIENTES_SERVICE_URL=http://clientes-service:3000
+      - ALLOWED_ORIGINS=*
+      - HTTP_READ_TIMEOUT=10
+      - HTTP_OPEN_TIMEOUT=5
+    # Puerto interno solamente (accesible solo desde la red Docker)
+    expose:
+      - "3000"
+    volumes:
+      - ./backend/facturas-service:/app
+      - facturas_logs:/app/log
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+      clientes-service:
+        condition: service_healthy
+    networks:
+      - factumarket-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   oracle_data:
     driver: local
   clientes_logs:
     driver: local
-
+  facturas_logs:
+    driver: local
 networks:
   factumarket-network:
     driver: bridge

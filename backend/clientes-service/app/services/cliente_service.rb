@@ -1,9 +1,8 @@
 require_relative '../../lib/domain/entities/cliente'
 
 class ClienteService
-  def initialize(cliente_repository, auditoria_service)
+  def initialize(cliente_repository)
     @cliente_repository = cliente_repository
-    @auditoria_service = auditoria_service
   end
   
 
@@ -27,14 +26,6 @@ class ClienteService
 
     begin
       saved_cliente = @cliente_repository.save(cliente)
-      
-      # Registrar evento de auditoría
-      @auditoria_service.registrar_evento(
-        tipo: 'cliente_creado',
-        entidad_id: saved_cliente.id,
-        datos: saved_cliente.to_hash
-      )
-      
       { success: true, data: saved_cliente }
     rescue => e
       return { success: false, errors: [e.message] }
@@ -45,12 +36,6 @@ class ClienteService
     begin
       cliente = @cliente_repository.find_by_id(id)
       if cliente
-        # Registrar evento de auditoría
-        @auditoria_service.registrar_evento(
-          tipo: 'cliente_consultado',
-          entidad_id: id,
-          datos: {}
-        )
         return { success: true, data: cliente }
       else
         return { success: false, errors: ["Cliente no encontrado"] }
@@ -63,14 +48,6 @@ class ClienteService
   def listar_clientes
     begin
       clientes = @cliente_repository.all
-      
-      # Registrar evento de auditoría
-      @auditoria_service.registrar_evento(
-        tipo: 'clientes_listados',
-        entidad_id: nil,
-        datos: {}
-      )
-      
       { success: true, data: clientes }
     rescue => e
       return { success: false, errors: [e.message] }

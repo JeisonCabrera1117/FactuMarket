@@ -31,7 +31,7 @@ class ClientesController < ApplicationController
   def show
     result = @cliente_service.obtener_cliente(params[:id])
     if result[:success]
-      @audit_logger.log_read('clientes-service', 'cliente', params[:id], {
+      @audit_logger.log_show('clientes-service', 'cliente', params[:id], {
         ip_address: request.remote_ip,
         user_agent: request.user_agent,
         request_data: { action: 'show', cliente_id: params[:id] },

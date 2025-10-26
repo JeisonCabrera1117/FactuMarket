@@ -55,6 +55,10 @@ class AuditLogger
     log_event(service_name, 'read', resource_type, resource_id, options)
   end
 
+  def log_show(service_name, resource_type, resource_id, options = {})
+    log_event(service_name, 'show', resource_type, resource_id, options)
+  end
+
   def log_update(service_name, resource_type, resource_id, options = {})
     log_event(service_name, 'update', resource_type, resource_id, options)
   end

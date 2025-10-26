@@ -52,7 +52,7 @@ class FacturasController < ApplicationController
   def show
     result = @factura_service.obtener_factura(params[:id])
     if result[:success]
-      @audit_logger.log_read('facturas-service', 'factura', params[:id], {
+      @audit_logger.log_show('facturas-service', 'factura', params[:id], {
         ip_address: request.remote_ip,
         user_agent: request.user_agent,
         request_data: { action: 'show', factura_id: params[:id] },

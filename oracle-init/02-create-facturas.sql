@@ -42,7 +42,7 @@ CREATE TABLE facturas_service.facturas (
     subtotal NUMBER(15,2) NOT NULL CHECK (subtotal > 0),
     impuestos NUMBER(15,2) NOT NULL CHECK (impuestos >= 0),
     total NUMBER(15,2) NOT NULL CHECK (total > 0),
-    estado VARCHAR2(20) NOT NULL DEFAULT 'borrador' CHECK (estado IN ('borrador', 'emitida', 'cancelada')),
+    estado VARCHAR2(20) DEFAULT 'borrador' CHECK (estado IN ('borrador', 'emitida', 'cancelada')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

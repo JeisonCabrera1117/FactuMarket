@@ -42,6 +42,27 @@ services:
       retries: 5
       start_period: 60s
 
+  # Base de datos MongoDB para auditoría
+  mongodb:
+    image: mongo:7.0
+    container_name: factumarket-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+      - MONGO_INITDB_DATABASE=auditoria
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - factumarket-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   # Servicio de clientes
   clientes-service:
     build:
@@ -93,6 +114,7 @@ services:
       - ORACLE_PASSWORD=facturas123
       - RAILS_MAX_THREADS=5
       - CLIENTES_SERVICE_URL=http://clientes-service:3000
+      - AUDITORIA_SERVICE_URL=http://auditoria-service:3000
       - ALLOWED_ORIGINS=*
       - HTTP_READ_TIMEOUT=10
       - HTTP_OPEN_TIMEOUT=5
@@ -107,6 +129,40 @@ services:
         condition: service_healthy
       clientes-service:
         condition: service_healthy
+      auditoria-service:
+        condition: service_healthy
+    networks:
+      - factumarket-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Servicio de auditoría
+  auditoria-service:
+    build:
+      context: ./backend/auditoria-service
+      dockerfile: Dockerfile
+    container_name: factumarket-auditoria-service
+    environment:
+      - RAILS_ENV=development
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=auditoria_development
+      - RAILS_MAX_THREADS=5
+      - ALLOWED_ORIGINS=*
+    # Puerto interno solamente (accesible solo desde la red Docker)
+    expose:
+      - "3000"
+    volumes:
+      - ./backend/auditoria-service:/app
+      - auditoria_logs:/app/log
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - factumarket-network
     restart: unless-stopped
@@ -120,9 +176,13 @@ services:
 volumes:
   oracle_data:
     driver: local
+  mongodb_data:
+    driver: local
   clientes_logs:
     driver: local
   facturas_logs:
+    driver: local
+  auditoria_logs:
     driver: local
 networks:
   factumarket-network:

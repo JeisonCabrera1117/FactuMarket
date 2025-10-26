@@ -1,6 +1,9 @@
 -- Script para crear el usuario y tablas del servicio de facturas
 -- Este script se ejecuta automáticamente cuando Oracle se inicia
 
+-- Conectar a la PDB
+ALTER SESSION SET CONTAINER = XEPDB1;
+
 -- Crear usuario para el servicio de facturas
 CREATE USER facturas_service IDENTIFIED BY facturas123;
 

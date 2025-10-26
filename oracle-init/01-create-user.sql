@@ -1,6 +1,9 @@
 -- Script para crear el usuario de la aplicación clientes-service
 -- Este script se ejecuta automáticamente cuando Oracle se inicia
 
+-- Conectar a la PDB
+ALTER SESSION SET CONTAINER = XEPDB1;
+
 -- Crear usuario para el servicio de clientes
 CREATE USER clientes_service IDENTIFIED BY clientes123;
 

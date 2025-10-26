@@ -24,7 +24,7 @@ default: &default
   password: <%= ENV.fetch("ORACLE_PASSWORD") { "clientes123" } %>
   host: <%= ENV.fetch("ORACLE_HOST") { "oracle-db" } %>
   port: <%= ENV.fetch("ORACLE_PORT") { 1521 } %>
-  database: <%= ENV.fetch("ORACLE_DATABASE") { "XEPDB1" } %>
+  database: <%= ENV.fetch("ORACLE_SERVICE_NAME") { "XEPDB1" } %>
 
 development:
   <<: *default

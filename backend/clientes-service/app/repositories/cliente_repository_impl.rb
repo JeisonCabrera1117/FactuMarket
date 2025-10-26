@@ -21,7 +21,7 @@ class ClienteRepositoryImpl < Domain::Repositories::ClienteRepository
   end
 
   def save(cliente_entity)
-    if cliente_entity.id.present?
+    if cliente_entity.id.present? && cliente_entity.id != 0 && cliente_entity.id != "0.0"
       cliente = Cliente.find(cliente_entity.id)
       cliente.update!(
         nombre: cliente_entity.nombre,
@@ -30,6 +30,8 @@ class ClienteRepositoryImpl < Domain::Repositories::ClienteRepository
         direccion: cliente_entity.direccion
       )
     else
+      # Con secuencias tradicionales, ActiveRecord funciona correctamente
+      # El trigger genera el ID automáticamente si es nil
       cliente = Cliente.create!(
         nombre: cliente_entity.nombre,
         identificacion: cliente_entity.identificacion,

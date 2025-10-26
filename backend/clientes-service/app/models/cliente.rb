@@ -1,4 +1,9 @@
 class Cliente < ApplicationRecord
+  self.table_name = 'clientes'
+  
+  # Configurar la secuencia para Oracle
+  self.sequence_name = 'seq_clientes_id'
+  
   validates :nombre, :direccion, presence: true
   validates :identificacion, presence: true, uniqueness: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true

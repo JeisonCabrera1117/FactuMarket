@@ -25,7 +25,7 @@ class FacturaRepositoryImpl < Domain::Repositories::FacturaRepository
   end
 
   def save(factura_entity)
-    if factura_entity.id.present?
+    if factura_entity.id.present? && factura_entity.id != 0 && factura_entity.id != "0.0"
       factura = Factura.find(factura_entity.id)
       factura.update!(
         numero: factura_entity.numero,

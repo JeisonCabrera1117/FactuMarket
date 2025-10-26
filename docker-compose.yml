@@ -77,6 +77,7 @@ services:
       - ORACLE_USERNAME=clientes_service
       - ORACLE_PASSWORD=clientes123
       - RAILS_MAX_THREADS=5
+      - AUDITORIA_SERVICE_URL=http://auditoria-service:3000
       - ALLOWED_ORIGINS=*
       - HTTP_READ_TIMEOUT=10
       - HTTP_OPEN_TIMEOUT=5
@@ -88,6 +89,8 @@ services:
       - clientes_logs:/app/log
     depends_on:
       oracle-db:
+        condition: service_healthy
+      auditoria-service:
         condition: service_healthy
     networks:
       - factumarket-network

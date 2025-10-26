@@ -1,13 +1,17 @@
 class ItemFactura < ApplicationRecord
   self.table_name = 'items_factura'
+  
+  # Configurar la secuencia para Oracle
+  self.sequence_name = 'seq_items_factura_id'
+  
   belongs_to :factura
 
   validates :descripcion, presence: true
   validates :cantidad, presence: true, numericality: { greater_than: 0 }
   validates :precio_unitario, presence: true, numericality: { greater_than: 0 }
-  validates :subtotal, presence: true, numericality: { greater_than: 0 }
+  validates :subtotal, presence: true, numericality: { greater_than: 0 }, allow_nil: true
 
-  before_save :calcular_subtotal
+  before_validation :calcular_subtotal
 
   def self.from_domain(item_entity, factura)
     new(

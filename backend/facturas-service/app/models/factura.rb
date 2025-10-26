@@ -1,4 +1,9 @@
 class Factura < ApplicationRecord
+  self.table_name = 'facturas'
+  
+  # Configurar la secuencia para Oracle
+  self.sequence_name = 'seq_facturas_id'
+  
   has_many :item_facturas, dependent: :destroy
 
   validates :numero, presence: true, uniqueness: true

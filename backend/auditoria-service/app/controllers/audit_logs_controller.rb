@@ -26,12 +26,16 @@ class AuditLogsController < ApplicationController
 
   # GET /audit_logs - Listar logs con filtros
   def index
+    # Remover el parámetro 'action' que viene de Rails controller
+    params.delete(:action)
+    params.delete(:controller)
+    
     if params[:service_name].present?
       result = @audit_service.get_logs_by_service(params[:service_name])
     elsif params[:resource_type].present? && params[:resource_id].present?
       result = @audit_service.get_logs_by_resource(params[:resource_type], params[:resource_id])
-    elsif params[:action].present?
-      result = @audit_service.get_logs_by_action(params[:action])
+    elsif params[:audit_action].present?
+      result = @audit_service.get_logs_by_action(params[:audit_action])
     elsif params[:user_id].present?
       result = @audit_service.get_logs_by_user(params[:user_id])
     elsif params[:start_date].present? && params[:end_date].present?

@@ -105,8 +105,13 @@ class FacturasController < ApplicationController
   def factura_params
     params.require(:factura).permit(
       :cliente_id,
+      :numero,
       :fecha_emision,
-      items: [:descripcion, :cantidad, :precio_unitario]
+      :subtotal,
+      :impuestos,
+      :total,
+      :estado,
+      items: [:descripcion, :cantidad, :precio_unitario, :subtotal]
     )
   end
 end

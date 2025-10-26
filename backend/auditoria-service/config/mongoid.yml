@@ -1,0 +1,60 @@
+development:
+  clients:
+    default:
+      database: auditoria_development
+      hosts:
+        - mongodb:27017
+      options:
+        # Authentication
+        user: admin
+        password: admin123
+        auth_source: admin
+        # Write concern
+        write:
+          w: 1
+        # Read preference
+        read:
+          mode: :primary
+        # Connection timeout
+        connect_timeout: 15
+        # Socket timeout
+        socket_timeout: 5
+        # Server selection timeout
+        server_selection_timeout: 5
+        # Max pool size
+        max_pool_size: 5
+        # Min pool size
+        min_pool_size: 1
+        # Max idle time
+        max_idle_time: 30
+
+test:
+  clients:
+    default:
+      database: auditoria_test
+      hosts:
+        - mongodb:27017
+      options:
+        # Authentication
+        user: admin
+        password: admin123
+        auth_source: admin
+        read:
+          mode: :primary
+        max_pool_size: 1
+
+production:
+  clients:
+    default:
+      database: auditoria_production
+      hosts:
+        - mongodb:27017
+      options:
+        # Authentication
+        user: admin
+        password: admin123
+        auth_source: admin
+        read:
+          mode: :primary
+        max_pool_size: 10
+        min_pool_size: 5

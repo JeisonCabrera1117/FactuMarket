@@ -54,5 +54,54 @@ class ClienteService
     end
   end
 
+  def actualizar_cliente(id, cliente_params)
+    # Verificar que el cliente existe
+    cliente = @cliente_repository.find_by_id(id)
+    unless cliente
+      return { success: false, error: "Cliente no encontrado" }
+    end
+
+    # Verificar si la identificación ya existe en otro cliente
+    if cliente_params[:identificacion].present? && 
+       cliente_params[:identificacion] != cliente.identificacion
+      existing_cliente = @cliente_repository.find_by_identificacion(cliente_params[:identificacion])
+      if existing_cliente && existing_cliente.id.to_s != id.to_s
+        return { success: false, error: "Ya existe otro cliente con esta identificación" }
+      end
+    end
+
+    begin
+      updated_cliente = Domain::Entities::Cliente.new(
+        id: id,
+        nombre: cliente_params[:nombre] || cliente.nombre,
+        identificacion: cliente_params[:identificacion] || cliente.identificacion,
+        email: cliente_params[:email] || cliente.email,
+        direccion: cliente_params[:direccion] || cliente.direccion
+      )
+      
+      unless updated_cliente.valid?
+        return { success: false, error: "Nombre e identificación son requeridos" }
+      end
+
+      saved_cliente = @cliente_repository.save(updated_cliente)
+      { success: true, data: saved_cliente }
+    rescue => e
+      return { success: false, error: e.message }
+    end
+  end
+
+  def eliminar_cliente(id)
+    begin
+      cliente = @cliente_repository.find_by_id(id)
+      unless cliente
+        return { success: false, error: "Cliente no encontrado" }
+      end
+
+      @cliente_repository.delete(id)
+      { success: true, data: { id: id, message: "Cliente eliminado correctamente" } }
+    rescue => e
+      return { success: false, error: e.message }
+    end
+  end
   
 end

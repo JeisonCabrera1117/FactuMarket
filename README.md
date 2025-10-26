@@ -19,7 +19,7 @@ Sistema de microservicios para facturación electrónica implementando Clean Arc
 - **Patrón MVC**: Controladores, modelos y servicios bien estructurados
 - **Microservicios**: Servicios independientes con comunicación HTTP
 - **Repository Pattern**: Abstracción de la capa de persistencia
-- **Auditoría Completa**: Logging de todas las operaciones CRUD
+- **Auditoría Completa**: Logging automático de operaciones (create, read, show, update, delete, error)
 
 ### Punto de Entrada Único
 
@@ -174,7 +174,7 @@ config/                        # Configuración
 - **Controladores:** `app/controllers/` (API REST)
 
 #### **Audit Pattern**
-- **Logging automático** en todas las operaciones CRUD
+- **Logging automático** en todas las operaciones CRUD (create, read, show, update, delete, error)
 - **Trazabilidad completa** de cambios
 - **Filtros avanzados** para consultas
 
@@ -282,8 +282,10 @@ end
 Copia `.env.example` a `.env` y ajusta las variables según tu entorno:
 
 ```bash
-cp .env
+cp .env.example .env
 ```
+
+**Nota importante**: El archivo `.env` está excluido del repositorio por seguridad (configurado en `.gitignore`). Solo se sube al repositorio el archivo `.env.example` como plantilla. Asegúrate de crear tu propio archivo `.env` con las credenciales reales en tu entorno local.
 
 ### Ejecución con Docker Compose
 
@@ -320,12 +322,15 @@ docker-compose logs -f auditoria-service
 - `GET /clientes` - Listar todos los clientes
 - `GET /clientes/:id` - Obtener cliente por ID
 - `POST /clientes` - Crear nuevo cliente
+- `PUT /clientes/:id` - Actualizar cliente existente
+- `DELETE /clientes/:id` - Eliminar cliente
 
 ### Servicio de Facturas
 
 - `GET /facturas` - Listar facturas (con filtros opcionales)
 - `GET /facturas/:id` - Obtener factura por ID
 - `POST /facturas` - Crear nueva factura
+- `DELETE /facturas/:id` - Eliminar factura
 
 ### Servicio de Auditoría
 
@@ -390,6 +395,109 @@ docker-compose logs -f auditoria-service
 }
 ```
 
+## Sistema de Auditoría
+
+El sistema de auditoría registra automáticamente todas las operaciones realizadas en los microservicios, proporcionando trazabilidad completa y cumplimiento normativo.
+
+### Tipos de Acciones Auditadas
+
+El sistema registra las siguientes acciones en todos los servicios:
+
+- **`create`**: Creación de nuevos recursos (clientes, facturas, etc.)
+- **`read`**: Lectura/consulta de listados de recursos
+- **`show`**: Consulta de un recurso específico por ID
+- **`update`**: Actualización/modificación de recursos existentes
+- **`delete`**: Eliminación de recursos
+- **`error`**: Registro de errores y excepciones
+
+### Información Registrada en Cada Evento
+
+Cada registro de auditoría incluye la siguiente información:
+
+```json
+{
+  "service_name": "clientes-service",
+  "action": "create",
+  "resource_type": "cliente",
+  "resource_id": "123",
+  "user_id": "usuario@empresa.com",
+  "ip_address": "192.168.1.100",
+  "user_agent": "Mozilla/5.0...",
+  "request_data": {
+    "nombre": "Juan Pérez",
+    "identificacion": "12345678",
+    "email": "juan@example.com"
+  },
+  "response_data": {
+    "id": "123",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2024-01-01T00:00:00Z"
+}
+```
+
+### Campos de Auditoría
+
+| Campo | Descripción | Ejemplo |
+|-------|-------------|---------|
+| `service_name` | Nombre del microservicio que genera el evento | `clientes-service` |
+| `action` | Tipo de acción realizada | `create`, `read`, `show`, `update`, `delete`, `error` |
+| `resource_type` | Tipo de recurso afectado | `cliente`, `factura`, `audit_log` |
+| `resource_id` | ID del recurso específico | `123` |
+| `user_id` | Identificador del usuario que realiza la acción | `usuario@empresa.com` |
+| `ip_address` | Dirección IP desde la que se realizó la solicitud | `192.168.1.100` |
+| `user_agent` | Información del navegador/cliente HTTP | `Mozilla/5.0...` |
+| `request_data` | Datos enviados en la petición | `{ "nombre": "Juan Pérez" }` |
+| `response_data` | Datos retornados en la respuesta | `{ "id": "123" }` |
+| `status` | Estado de la operación | `success` o `error` |
+| `error_message` | Mensaje de error si la operación falló | `Error de validación` |
+| `timestamp` | Fecha y hora del evento | `2024-01-01T00:00:00Z` |
+
+### Filtros Disponibles para Consultas de Auditoría
+
+Puedes filtrar los logs de auditoría usando los siguientes parámetros:
+
+- **Por servicio: `?service_name=clientes-service`**
+- **Por tipo de recurso: `?resource_type=cliente`**
+- **Por acción: `?action=create`**
+- **Por usuario: `?user_id=usuario@empresa.com`**
+- **Por rango de fechas: `?start_date=2024-01-01&end_date=2024-01-31`**
+- **Por estado: `?errors=true`** (solo errores)
+- **Paginación: `?limit=100&offset=0`**
+
+### Ejemplos de Consultas de Auditoría
+
+```bash
+# Obtener todos los logs del servicio de clientes
+GET /audit_logs?service_name=clientes-service
+
+# Obtener solo operaciones de creación
+GET /audit_logs?action=create
+
+# Obtener todos los errores en el último mes
+GET /audit_logs?errors=true&start_date=2024-01-01&end_date=2024-01-31
+
+# Obtener el historial completo de un recurso específico
+GET /audit_logs?resource_type=cliente&resource_id=123
+
+# Obtener todas las acciones de un usuario
+GET /audit_logs?user_id=usuario@empresa.com
+
+# Paginación para grandes volúmenes
+GET /audit_logs?limit=50&offset=0
+```
+
+### Beneficios del Sistema de Auditoría
+
+- **Trazabilidad Completa**: Registro de todas las operaciones CRUD (create, read, show, update, delete, error) en el sistema
+- **Cumplimiento Normativo**: Cumplimiento de requisitos de auditoría y compliance
+- **Seguridad**: Identificación de accesos sospechosos o no autorizados
+- **Troubleshooting**: Facilita la resolución de problemas y depuración
+- **Análisis de Uso**: Entendimiento del uso del sistema por parte de los usuarios
+- **Respaldo Legal**: Evidencia de transacciones para soporte legal
+
 ## Monitoreo
 
 El sistema incluye health checks para monitorear el estado de los servicios:
@@ -397,5 +505,5 @@ El sistema incluye health checks para monitorear el estado de los servicios:
 - Health check general del gateway
 - Health checks específicos de cada microservicio
 - Verificación de dependencias entre servicios
-- Logging automático de todas las operaciones
+- Logging automático de todas las operaciones CRUD (create, read, show, update, delete, error)
 

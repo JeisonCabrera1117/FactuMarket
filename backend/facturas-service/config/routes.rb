@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   # Health check mejorado que verifica dependencias
   get "health" => "health#show", as: :health_check
 
-  resources :facturas, only: [:index, :show, :create]
+  resources :facturas, except: [:update]
 
   # Defines the root path route ("/")
   # root "posts#index"

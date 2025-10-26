@@ -89,6 +89,25 @@ class FacturasController < ApplicationController
     end
   end
 
+  def destroy
+    result = @factura_service.eliminar_factura(params[:id])
+    if result[:success]
+      @audit_logger.log_delete('facturas-service', 'factura', params[:id], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'destroy', factura_id: params[:id] }
+      })
+      render json: result[:data], status: :ok
+    else
+      @audit_logger.log_error('facturas-service', 'factura', params[:id], result[:error], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'destroy', factura_id: params[:id] }
+      })
+      render json: { error: result[:error] }, status: :not_found
+    end
+  end
+
   private
 
   def set_factura_service

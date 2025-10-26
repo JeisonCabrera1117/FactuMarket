@@ -68,6 +68,45 @@ class ClientesController < ApplicationController
     end
   end
 
+  def update
+    result = @cliente_service.actualizar_cliente(params[:id], cliente_params)
+    if result[:success]
+      @audit_logger.log_update('clientes-service', 'cliente', params[:id], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'update', cliente_data: cliente_params },
+        response_data: { cliente: result[:data] }
+      })
+      render json: { cliente: result[:data] }, status: :ok
+    else
+      @audit_logger.log_error('clientes-service', 'cliente', params[:id], result[:error], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'update', cliente_data: cliente_params }
+      })
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    result = @cliente_service.eliminar_cliente(params[:id])
+    if result[:success]
+      @audit_logger.log_delete('clientes-service', 'cliente', params[:id], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'destroy', cliente_id: params[:id] }
+      })
+      render json: result[:data], status: :ok
+    else
+      @audit_logger.log_error('clientes-service', 'cliente', params[:id], result[:error], {
+        ip_address: request.remote_ip,
+        user_agent: request.user_agent,
+        request_data: { action: 'destroy', cliente_id: params[:id] }
+      })
+      render json: { error: result[:error] }, status: :not_found
+    end
+  end
+
   private 
 
   def set_cliente_service

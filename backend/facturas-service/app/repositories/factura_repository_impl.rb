@@ -1,5 +1,6 @@
 require_relative '../../lib/domain/repositories/factura_repository'
 require_relative '../models/factura'
+require_relative '../models/item_factura'
 
 class FacturaRepositoryImpl < Domain::Repositories::FacturaRepository
   def find_by_id(id)
@@ -27,6 +28,12 @@ class FacturaRepositoryImpl < Domain::Repositories::FacturaRepository
   def save(factura_entity)
     if factura_entity.id.present? && factura_entity.id != 0 && factura_entity.id != "0.0"
       factura = Factura.find(factura_entity.id)
+      
+      # Solo eliminar items existentes si se están proporcionando nuevos items
+      if factura_entity.items.present? && factura_entity.items.any?
+        factura.items.destroy_all
+      end
+      
       factura.update!(
         numero: factura_entity.numero,
         cliente_id: factura_entity.cliente_id,
@@ -50,14 +57,16 @@ class FacturaRepositoryImpl < Domain::Repositories::FacturaRepository
       )
     end
 
-    # Guardar items
-    factura_entity.items.each do |item_entity|
-      ItemFactura.create!(
-        factura: factura,
-        descripcion: item_entity.descripcion,
-        cantidad: item_entity.cantidad,
-        precio_unitario: item_entity.precio_unitario
-      )
+    # Solo guardar items si se proporcionaron
+    if factura_entity.items.present? && factura_entity.items.any?
+      factura_entity.items.each do |item_entity|
+        ItemFactura.create!(
+          factura: factura,
+          descripcion: item_entity.descripcion,
+          cantidad: item_entity.cantidad,
+          precio_unitario: item_entity.precio_unitario
+        )
+      end
     end
 
     factura.reload.to_domain_entity

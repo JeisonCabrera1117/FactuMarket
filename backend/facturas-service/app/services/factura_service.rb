@@ -97,6 +97,20 @@ class FacturaService
     end
   end
 
+  def eliminar_factura(id)
+    begin
+      factura = @factura_repository.find_by_id(id)
+      unless factura
+        return { success: false, error: "Factura no encontrada" }
+      end
+
+      @factura_repository.delete(id)
+      { success: true, data: { id: id, message: "Factura eliminada correctamente" } }
+    rescue => e
+      { success: false, error: e.message }
+    end
+  end
+
   private
 
   def generar_numero_factura

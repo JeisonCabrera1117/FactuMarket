@@ -4,6 +4,8 @@ Sistema de microservicios para facturación electrónica implementando Clean Arc
 
 ## Arquitectura
 
+> **Diagrama de Arquitectura de Alto Nivel**: Este proyecto incluye un diagrama visual que muestra la arquitectura completa del sistema. Puedes encontrar el archivo `diagrama de alto nivel.png` en la raíz del proyecto, que ilustra la interacción entre los microservicios, sus componentes internos (Controller MVC, Casos de Uso, Entidades de Dominio, Infraestructura), y las bases de datos (Oracle y MongoDB).
+
 ### Microservicios Implementados
 
 - **api-gateway** (Puerto 3000): Nginx como proxy reverso y punto de entrada único
@@ -108,6 +110,7 @@ FactuMarket/
 │   ├── nginx.conf                           # Configuración del proxy reverso
 │   └── Dockerfile
 ├── docker-compose.yml                       # Orquestación de servicios
+├── diagrama de alto nivel.png              # Diagrama de arquitectura visual
 ├── .env.example                             # Variables de entorno de ejemplo
 └── README.md                                # Documentación del proyecto
 ```

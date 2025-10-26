@@ -30,6 +30,251 @@ Todos los servicios son accesibles a través de una sola URL base:
 - `http://localhost:3000/audit_logs` - Servicio de auditoría
 - `http://localhost:3000/health` - Health check general
 
+
+## Estructura del Proyecto
+
+```
+FactuMarket/
+├── backend/
+│   ├── clientes-service/                    # Microservicio de clientes (Clean Architecture)
+│   │   ├── app/
+│   │   │   ├── controllers/
+│   │   │   │   └── clientes_controller.rb   # Controlador REST
+│   │   │   ├── models/
+│   │   │   │   └── cliente.rb               # Modelo de dominio
+│   │   │   ├── services/
+│   │   │   │   └── audit_logger.rb          # Servicio de logging automático
+│   │   │   └── repositories/
+│   │   │       └── cliente_repository.rb    # Patrón Repository
+│   │   ├── lib/
+│   │   │   └── domain/
+│   │   │       ├── entities/
+│   │   │       │   └── cliente.rb           # Entidad de dominio
+│   │   │       └── repositories/
+│   │   │           └── cliente_repository_interface.rb  # Interfaz del repositorio
+│   │   ├── config/
+│   │   │   ├── database.yml                 # Configuración Oracle
+│   │   │   └── routes.rb                    # Rutas REST
+│   │   └── Dockerfile
+│   │
+│   ├── facturas-service/                    # Microservicio de facturas (Clean Architecture)
+│   │   ├── app/
+│   │   │   ├── controllers/
+│   │   │   │   └── facturas_controller.rb   # Controlador REST
+│   │   │   ├── models/
+│   │   │   │   └── factura.rb               # Modelo de dominio
+│   │   │   ├── services/
+│   │   │   │   └── audit_logger.rb          # Servicio de logging automático
+│   │   │   └── repositories/
+│   │   │       └── factura_repository.rb    # Patrón Repository
+│   │   ├── lib/
+│   │   │   └── domain/
+│   │   │       ├── entities/
+│   │   │       │   └── factura.rb           # Entidad de dominio
+│   │   │       └── repositories/
+│   │   │           └── factura_repository_interface.rb  # Interfaz del repositorio
+│   │   ├── config/
+│   │   │   ├── database.yml                 # Configuración Oracle
+│   │   │   └── routes.rb                    # Rutas REST
+│   │   └── Dockerfile
+│   │
+│   └── auditoria-service/                   # Microservicio de auditoría (Clean Architecture)
+│       ├── app/
+│       │   ├── controllers/
+│       │   │   ├── audit_logs_controller.rb # Controlador REST para logs
+│       │   │   └── health_controller.rb     # Health check con MongoDB
+│       │   ├── models/
+│       │   │   └── audit_log.rb             # Modelo Mongoid
+│       │   ├── services/
+│       │   │   └── audit_service.rb         # Servicio de aplicación
+│       │   └── repositories/
+│       │       └── audit_log_repository_impl.rb  # Implementación del repositorio
+│       ├── lib/
+│       │   └── domain/
+│       │       ├── entities/
+│       │       │   └── audit_log.rb         # Entidad de dominio
+│       │       └── repositories/
+│       │           └── audit_log_repository.rb  # Interfaz del repositorio
+│       ├── config/
+│       │   ├── mongoid.yml                  # Configuración MongoDB
+│       │   ├── database.yml                 # Configuración SQLite (dummy)
+│       │   └── routes.rb                    # Rutas REST
+│       └── Dockerfile
+│
+├── oracle-init/                              # Scripts de inicialización de Oracle
+│   ├── 01-create-user.sql                   # Creación de usuarios y esquemas
+│   └── 02-create-facturas.sql               # Creación de tablas de facturas
+├── nginx/                                    # Configuración del API Gateway
+│   ├── nginx.conf                           # Configuración del proxy reverso
+│   └── Dockerfile
+├── docker-compose.yml                       # Orquestación de servicios
+├── .env.example                             # Variables de entorno de ejemplo
+└── README.md                                # Documentación del proyecto
+```
+
+### Arquitectura Clean Architecture por Capas
+
+#### 🏗️ **Capa de Dominio (Domain Layer)**
+```
+lib/domain/
+├── entities/                    # Entidades de negocio
+│   ├── cliente.rb              # Reglas de negocio de clientes
+│   ├── factura.rb              # Reglas de negocio de facturas
+│   └── audit_log.rb            # Reglas de negocio de auditoría
+└── repositories/               # Interfaces de repositorios
+    ├── cliente_repository_interface.rb
+    ├── factura_repository_interface.rb
+    └── audit_log_repository.rb
+```
+
+#### 🔧 **Capa de Aplicación (Application Layer)**
+```
+app/
+├── services/                   # Servicios de aplicación
+│   ├── audit_logger.rb        # Logging automático
+│   └── audit_service.rb       # Lógica de aplicación
+├── repositories/               # Implementaciones de repositorios
+│   ├── cliente_repository.rb
+│   ├── factura_repository.rb
+│   └── audit_log_repository_impl.rb
+└── models/                     # Modelos de persistencia
+    ├── cliente.rb
+    ├── factura.rb
+    └── audit_log.rb
+```
+
+#### 🌐 **Capa de Infraestructura (Infrastructure Layer)**
+```
+app/controllers/                # Controladores REST
+├── clientes_controller.rb     # API de clientes
+├── facturas_controller.rb     # API de facturas
+└── audit_logs_controller.rb   # API de auditoría
+
+config/                        # Configuración
+├── database.yml               # Configuración Oracle
+├── mongoid.yml                # Configuración MongoDB
+└── routes.rb                  # Rutas REST
+```
+
+### Patrones de Diseño Implementados
+
+#### 🔄 **Repository Pattern**
+- **Interfaz:** `lib/domain/repositories/`
+- **Implementación:** `app/repositories/`
+- **Beneficio:** Desacoplamiento entre lógica de negocio y persistencia
+
+#### 🏭 **Service Layer Pattern**
+- **Servicios:** `app/services/`
+- **Responsabilidad:** Lógica de aplicación y orquestación
+- **Ejemplo:** `AuditLogger` para logging automático
+
+#### 🎯 **MVC Pattern**
+- **Modelos:** `app/models/` (persistencia)
+- **Vistas:** Respuestas JSON
+- **Controladores:** `app/controllers/` (API REST)
+
+#### 📊 **Audit Pattern**
+- **Logging automático** en todas las operaciones CRUD
+- **Trazabilidad completa** de cambios
+- **Filtros avanzados** para consultas
+
+### Flujo de Datos y Comunicación
+
+#### 🔄 **Flujo de una Operación CRUD**
+```
+1. Cliente → API Gateway (Nginx) → Microservicio
+2. Controlador → Servicio de Aplicación → Repositorio
+3. Repositorio → Base de Datos (Oracle/MongoDB)
+4. AuditLogger → Servicio de Auditoría (MongoDB)
+5. Respuesta JSON → Cliente
+```
+
+#### 🏗️ **Ejemplo de Implementación Clean Architecture**
+
+**Entidad de Dominio (`lib/domain/entities/cliente.rb`):**
+```ruby
+class Cliente
+  attr_reader :id, :nombre, :identificacion, :email, :direccion
+  
+  def initialize(id:, nombre:, identificacion:, email:, direccion:)
+    @id = id
+    @nombre = nombre
+    @identificacion = identificacion
+    @email = email
+    @direccion = direccion
+  end
+  
+  def validar_email
+    # Reglas de negocio para validación de email
+  end
+end
+```
+
+**Interfaz del Repositorio (`lib/domain/repositories/cliente_repository_interface.rb`):**
+```ruby
+module ClienteRepositoryInterface
+  def find_by_id(id)
+    raise NotImplementedError
+  end
+  
+  def save(cliente)
+    raise NotImplementedError
+  end
+  
+  def delete(id)
+    raise NotImplementedError
+  end
+end
+```
+
+**Implementación del Repositorio (`app/repositories/cliente_repository.rb`):**
+```ruby
+class ClienteRepository
+  include ClienteRepositoryInterface
+  
+  def find_by_id(id)
+    # Implementación con Oracle
+  end
+  
+  def save(cliente)
+    # Implementación con Oracle
+  end
+end
+```
+
+**Servicio de Aplicación (`app/services/audit_logger.rb`):**
+```ruby
+class AuditLogger
+  def self.log_operation(service_name, resource_type, action, resource_id, user_id, changes)
+    # Envío asíncrono al servicio de auditoría
+  end
+end
+```
+
+### Tecnologías y Herramientas
+
+#### 🗄️ **Bases de Datos**
+- **Oracle 21c Express**: Persistencia transaccional para clientes y facturas
+- **MongoDB 7.0**: Almacenamiento de logs de auditoría
+- **SQLite3**: Configuración dummy para compatibilidad con Rails
+
+#### 🐳 **Containerización**
+- **Docker**: Containerización de microservicios
+- **Docker Compose**: Orquestación de servicios
+- **Nginx**: API Gateway y proxy reverso
+
+#### 🚀 **Frameworks y Librerías**
+- **Ruby on Rails 7.1**: Framework web para microservicios
+- **Mongoid**: ODM para MongoDB
+- **Oracle Enhanced Adapter**: Conector para Oracle
+- **Puma**: Servidor web de aplicación
+
+#### 🔧 **Herramientas de Desarrollo**
+- **Health Checks**: Monitoreo de servicios
+- **Logging Automático**: Trazabilidad completa
+- **CORS**: Configuración para desarrollo frontend
+- **API REST**: Endpoints estandarizados
+
 ## Configuración
 
 ### Variables de Entorno
@@ -154,24 +399,3 @@ El sistema incluye health checks para monitorear el estado de los servicios:
 - Verificación de dependencias entre servicios
 - Logging automático de todas las operaciones
 
-## Estructura del Proyecto
-
-```
-FactuMarket/
-├── backend/
-│   ├── clientes-service/     # Microservicio de clientes (Clean Architecture)
-│   ├── facturas-service/     # Microservicio de facturas (Clean Architecture)
-│   └── auditoria-service/    # Microservicio de auditoría (Clean Architecture)
-├── oracle-init/              # Scripts de inicialización de Oracle
-├── nginx/                    # Configuración del API Gateway
-├── docker-compose.yml        # Orquestación de servicios
-└── README.md                 # Documentación del proyecto
-```
-
-## Próximos Pasos
-
-- [ ] Agregar pruebas unitarias en capa de dominio
-- [ ] Implementar autenticación y autorización
-- [ ] Agregar métricas y monitoreo
-- [ ] Implementar rate limiting
-- [ ] Configurar CI/CD pipeline
